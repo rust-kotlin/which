@@ -4,6 +4,8 @@ use colored::*;
 use std::env;
 #[allow(unused_imports)]
 use std::fs;
+#[cfg(unix)]
+use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 
 #[allow(dead_code)]
