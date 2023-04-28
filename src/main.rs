@@ -41,26 +41,25 @@ fn local_print(_i: usize, path: PathBuf, arg: &String, mode: Mode, found: bool) 
             format!(
                 "- {} {}",
                 arg,
-                if !found {
-                    filename_to_string(path).unwrap().green().bold()
-                } else {
-                    filename_to_string(path).unwrap().bold()
-                }
+                filename_to_string(path).unwrap().blue().bold()
             )
         ),
-        Mode::NotFounded => println!("{}", format!("x {arg} not found in PATH!").red().bold()),
+        Mode::NotFounded => println!(
+            "{}",
+            format!("x {} {}", arg, "not found in PATH!".red().bold())
+        ),
     }
 }
 
 fn main() -> Result<()> {
     let which = Command::new("which")
-        .author("Tomzz, pythongolangkotlinrust@gmail.com")
         .version("1.0.0")
         .about("Search in the path for a specific executable file")
         .arg(
             Arg::new("filenames")
                 .required(true)
-                .index(1)
+                .num_args(1..)
+                // .index(1)
                 .help("The filenames to search for"),
         )
         .after_help("To be improved")
@@ -117,6 +116,9 @@ fn main() -> Result<()> {
                     {
                         if fs::metadata(&full_path)?.permissions().mode() & 0o111 != 0 {
                             local_print(i + 1, full_path, arg, Mode::Executable, found);
+                            if !found {
+                                found = true;
+                            }
                         } else {
                             local_print(i + 1, full_path, arg, Mode::File, found);
                         }
@@ -124,9 +126,9 @@ fn main() -> Result<()> {
                     #[cfg(windows)]
                     {
                         local_print(i + 1, full_path, arg, Mode::Executable, found);
-                    }
-                    if !found {
-                        found = true;
+                        if !found {
+                            found = true;
+                        }
                     }
                 }
             }
